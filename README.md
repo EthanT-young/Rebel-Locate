@@ -1,2 +1,2 @@
-# CS422-Rebel Bolt
+# CS422-Rebel Locate
 The Rainbolt of UNLV
