@@ -1,0 +1,96 @@
+from exif import Image
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import preprocessing
+from sklearn import neighbors
+from sklearn import datasets
+from sklearn.preprocessing import LabelEncoder
+
+# CHANGE THIS DIRECTORY WHEN RUNNING PROGRAM
+parent_directory = "/Users/xmastersteel/Desktop/CS 422 Project - Reece Images"
+
+# TEMP 1D ARRAYS
+imgname = []
+buildingname = []
+latitudes = []
+longitudes = []
+
+# Extract all subdirectories.
+for subdir, _, files in os.walk(parent_directory):
+
+    # Extract images from subdirectory.
+    for file in files:
+
+        # Images must end with .jpg/.jpeg.
+        filePath = os.path.join(subdir, file)
+        if not file.lower().endswith(('.jpg', '.jpeg')):
+            continue
+
+        # Open each image.
+        with open(filePath, 'rb') as image_file:
+            my_image = Image(image_file)
+
+        # Extract coordinates from each image.
+        try:
+
+            # Convert coordinates from D/M/S notation into decimal.
+            convertedLat = (my_image.gps_latitude[0] + (my_image.gps_latitude[1] / 60) + (my_image.gps_latitude[2] / 3600))
+            if my_image.gps_latitude_ref == 'S':
+                convertedLat = -convertedLat
+            convertedLon = (my_image.gps_longitude[0] + (my_image.gps_longitude[1] / 60) + (my_image.gps_longitude[2] / 3600))
+            if my_image.gps_longitude_ref == 'W':
+                convertedLon = -convertedLon
+
+            # Append information to temp 1D arrays.
+            imgname.append(str(file))
+            buildingname.append(str(subdir).replace(parent_directory, ""))
+            latitudes.append(convertedLat)
+            longitudes.append(convertedLon)
+
+        # Images didn't have coordinate metadata.
+        except AttributeError:
+            print(f"ERROR: {filePath} doesn't have coordinate metadata.")
+
+
+df = np.column_stack((imgname, buildingname, latitudes, longitudes))
+np.random.shuffle(df)
+
+buildingNameTrain = df[0:(round(df.shape[0] * 0.75)), 1:2].ravel()
+encodedBuildingNameTrain = LabelEncoder().fit_transform(buildingNameTrain)
+
+buildingNameTest = df[(round(df.shape[0] * 0.75)):df.shape[0], 1:2].ravel()
+encodedBuildingNameTest = LabelEncoder().fit_transform(buildingNameTest)
+
+coordsTrain = df[0:round(df.shape[0] * 0.75), 2:4].astype(float)
+
+knn = neighbors.KNeighborsClassifier(n_neighbors=7, metric='euclidean')
+knn.fit(coordsTrain, encodedBuildingNameTrain)
+pred = knn.predict(df[round(df.shape[0] * 0.75):df.shape[0], 2:4].astype(float))
+
+totalMatches = 0
+correctMatches = {}
+incorrectMatches = {}
+
+for i in range(11):
+    correctMatches[i] = 0
+    incorrectMatches[i] = 0
+
+for j in range(df.shape[0] - round(df.shape[0] * 0.75)):
+    if encodedBuildingNameTest[j] == pred[j]:
+        correctMatches[encodedBuildingNameTest[j]] += 1
+        totalMatches += 1
+    else:
+        incorrectMatches[encodedBuildingNameTest[j]] += 1
+
+print(totalMatches)
+print(totalMatches / (df.shape[0] - round(df.shape[0] * 0.75)))
+
+# SCATTER PLOT OF ALL POINTS.
+plt.figure(figsize=(8, 6))
+plt.scatter(longitudes, latitudes, marker='o', color='blue', alpha=0.6)
+plt.xlabel("Longitude")
+plt.ylabel("Latitude")
+plt.title("Scatter Plot of Image GPS Coordinates")
+plt.grid(True)
+plt.show()
