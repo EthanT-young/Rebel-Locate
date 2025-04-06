@@ -98,4 +98,3 @@ for j in range(testSize):
 
 print(f"Total Matches: {totalMatches}")
 print(f"Accuracy: {totalMatches / testSize * 100:.2f}%")
-
