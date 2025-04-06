@@ -52,7 +52,7 @@ for subdir, _, files in os.walk(parent_directory):
 
 # !REMINDER! FORMAT TO THE 7th decimal place to match google earth
 # Creates a CSV file that contains columns for the image and building name, latitude, longitude, and label 
-with open('output.csv', 'w', newline='') as file:
+with open('data.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["Image name", "Building name", "Latitude", "Longitude", "Label"])
     for i in range(len(imgname)):
@@ -107,4 +107,4 @@ for j in range(testSize):
 
 print(f"Total Matches: {totalMatches}")
 print(f"Accuracy: {totalMatches / testSize * 100:.2f}%")
-print(f"CSV file created following the format: building name, image name, lat, and long.")
+print(f"CSV file created following the format: building name, image name, latitude, longitude, and label.")
