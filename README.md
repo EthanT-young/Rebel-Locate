@@ -1,5 +1,4 @@
 # Rebel Locate
-The Rainbolt of UNLV: predicts which campus building and room a photo was taken in.
 
 ## How it works
 Rebel Locate runs in two stages:
