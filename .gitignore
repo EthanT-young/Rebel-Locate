@@ -1,0 +1,24 @@
+# Image dataset (download separately, see README).
+Ethan/
+data/
+
+# Photos. Images contain GPS metadata and are too large for the repo.
+*.[jJ][pP][gG]
+*.[jJ][pP][eE][gG]
+*.[pP][nN][gG]
+*.[hH][eE][iI][cC]
+
+# Places365 weights, downloaded automatically on first run (~45 MB).
+*.pth.tar
+*.part
+
+# Python.
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Editors and operating systems.
+.idea/
+.vscode/
+.DS_Store
